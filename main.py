@@ -17,17 +17,38 @@ BINANCE_API_URL = "https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT"
 BINANCE_KLINES_URL = "https://api.binance.com/api/v3/klines"
 # โหลด environment variables
 load_dotenv()
+
 class Blockchain:
     def __init__(self, wallet_address=None, private_key=None):
         self.wallet_address = wallet_address
         self.private_key = private_key
         self.chain = []
         self.reward_amount = 10
+
+        # สร้าง connection ก่อน
+        self.conn = self.create_connection()
+
+        # สร้าง table ใน DB
         self.create_table()
+
+        # โหลด blocks จาก DB
         self.load_blocks_from_db()
+
+        # สร้าง genesis block ถ้ายังไม่มี
         if not self.chain:
             self.create_genesis_block()
 
+    def create_connection(self):
+        db_url = os.getenv("DATABASE_URL")
+        if not db_url:
+            raise RuntimeError("DATABASE_URL is not set. Please configure it in Render Environment Variables.")
+        
+        # เพิ่ม sslmode=require
+        if "?" in db_url:
+            return psycopg.connect(f"{db_url}&sslmode=require")
+        else:
+            return psycopg.connect(f"{db_url}?sslmode=require")
+    
     def create_table(self):
         conn = psycopg.connect(os.getenv('DATABASE_URL'))
         cursor = conn.cursor()
