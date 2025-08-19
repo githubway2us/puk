@@ -12,23 +12,11 @@ import os
 app = Flask(__name__)
 app.secret_key = secrets.token_hex(16)
 
-# โหลด environment variables
-load_dotenv()
-
-# PostgreSQL configuration
-DB_CONFIG = {
-    'dbname': 'chainlogger_db',
-    'user': 'chainlogger_user',
-    'password': os.getenv('DB_PASSWORD', 'Chainlogger@2025'),
-    'host': 'localhost',
-    'port': '5433'
-}
-
-
 # Binance API URL
 BINANCE_API_URL = "https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT"
 BINANCE_KLINES_URL = "https://api.binance.com/api/v3/klines"
-
+# โหลด environment variables
+load_dotenv()
 class Blockchain:
     def __init__(self, wallet_address=None, private_key=None):
         self.wallet_address = wallet_address
@@ -41,7 +29,7 @@ class Blockchain:
             self.create_genesis_block()
 
     def create_table(self):
-        conn = psycopg.connect(**DB_CONFIG)
+        conn = psycopg.connect(os.getenv('DATABASE_URL'))
         cursor = conn.cursor()
         
         cursor.execute('''
@@ -167,7 +155,7 @@ class Blockchain:
 
     def load_blocks_from_db(self):
         self.chain = []
-        conn = psycopg.connect(**DB_CONFIG)
+        conn = psycopg.connect(os.getenv('DATABASE_URL'))
         cursor = conn.cursor()
         cursor.execute('SELECT "index", message, hash, previous_hash, timestamp, owner_id FROM blocks')
         for row in cursor.fetchall():
@@ -186,7 +174,7 @@ class Blockchain:
         conn.close()
 
     def add_block(self, message, transactions=None):
-        conn = psycopg.connect(**DB_CONFIG)
+        conn = psycopg.connect(os.getenv('DATABASE_URL'))
         cursor = conn.cursor()
         cursor.execute('SELECT MAX("index") FROM blocks')
         max_index = cursor.fetchone()[0]
@@ -212,7 +200,7 @@ class Blockchain:
         conn.close()
 
     def save_block_to_db(self, index, message, block_hash, previous_hash, transactions, owner_id):
-        conn = psycopg.connect(**DB_CONFIG)
+        conn = psycopg.connect(os.getenv('DATABASE_URL'))
         cursor = conn.cursor()
         cursor.execute('INSERT INTO blocks ("index", message, hash, previous_hash, timestamp, owner_id) VALUES (%s, %s, %s, %s, %s, %s)',
                        (index, message, block_hash, previous_hash, datetime.now().isoformat(), owner_id))
@@ -223,7 +211,7 @@ class Blockchain:
         conn.close()
         
     def update_block_message(self, index, new_message):
-        conn = psycopg.connect(**DB_CONFIG)
+        conn = psycopg.connect(os.getenv('DATABASE_URL'))
         cursor = conn.cursor()
         previous_hash = self.chain[index]["previous_hash"] if index < len(self.chain) else "0" * 64
         new_hash = hashlib.sha256(f"{previous_hash}{index}{new_message}".encode('utf-8')).hexdigest()
@@ -239,7 +227,7 @@ class Blockchain:
                 break
 
     def give_reward(self):
-        conn = psycopg.connect(**DB_CONFIG)
+        conn = psycopg.connect(os.getenv('DATABASE_URL'))
         cursor = conn.cursor()
         cursor.execute('INSERT INTO transactions (from_address, to_address, amount) VALUES (%s, %s, %s)',
                        ("system", self.wallet_address, self.reward_amount))
@@ -249,7 +237,7 @@ class Blockchain:
         conn.close()
 
     def view_transactions(self):
-        conn = psycopg.connect(**DB_CONFIG)
+        conn = psycopg.connect(os.getenv('DATABASE_URL'))
         cursor = conn.cursor()
         cursor.execute('SELECT id, timestamp, from_address, to_address, amount, block_index FROM transactions')
         transactions = [{"id": t[0], "timestamp": t[1], "from": t[2], "to": t[3], "amount": t[4], "block_index": t[5]} for t in cursor.fetchall()]
@@ -257,7 +245,7 @@ class Blockchain:
         return transactions
 
     def calculate_balance(self):
-        conn = psycopg.connect(**DB_CONFIG)
+        conn = psycopg.connect(os.getenv('DATABASE_URL'))
         cursor = conn.cursor()
         cursor.execute('SELECT SUM(amount) FROM transactions WHERE to_address = %s', (self.wallet_address,))
         incoming = cursor.fetchone()[0] or 0
@@ -272,7 +260,7 @@ class Blockchain:
             return False, "Insufficient balance"
         if amount <= 0:
             return False, "Amount must be greater than 0"
-        conn = psycopg.connect(**DB_CONFIG)
+        conn = psycopg.connect(os.getenv('DATABASE_URL'))
         cursor = conn.cursor()
         cursor.execute('SELECT wallet_address FROM wallets WHERE wallet_address = %s', (to_address,))
         if not cursor.fetchone():
@@ -310,7 +298,7 @@ def admin_required(f):
 
 def get_username():
     if 'user_id' in session:
-        conn = psycopg.connect(**DB_CONFIG)
+        conn = psycopg.connect(os.getenv('DATABASE_URL'))
         cursor = conn.cursor()
         cursor.execute('SELECT username FROM users WHERE id = %s', (session['user_id'],))
         result = cursor.fetchone()
@@ -323,7 +311,7 @@ def is_admin():
 
 def get_blockchain():
     if 'user_id' in session:
-        conn = psycopg.connect(**DB_CONFIG)
+        conn = psycopg.connect(os.getenv('DATABASE_URL'))
         cursor = conn.cursor()
         cursor.execute('SELECT wallet_address, private_key FROM wallets WHERE user_id = %s', (session['user_id'],))
         wallet = cursor.fetchone()
@@ -334,7 +322,7 @@ def get_blockchain():
 
 def get_puk_balance():
     if 'user_id' in session:
-        conn = psycopg.connect(**DB_CONFIG)
+        conn = psycopg.connect(os.getenv('DATABASE_URL'))
         cursor = conn.cursor()
         cursor.execute('SELECT puk_balance FROM users WHERE id = %s', (session['user_id'],))
         result = cursor.fetchone()
@@ -356,7 +344,7 @@ def register():
         password = request.form['password']
         hashed_password = hashlib.sha256(password.encode()).hexdigest()
         try:
-            conn = psycopg.connect(**DB_CONFIG)
+            conn = psycopg.connect(os.getenv('DATABASE_URL'))
             cursor = conn.cursor()
             cursor.execute('INSERT INTO users (username, password, puk_balance, is_admin) VALUES (%s, %s, %s, %s) RETURNING id',
                            (username, hashed_password, 0.0, False))
@@ -379,7 +367,7 @@ def login():
         username = request.form['username']
         password = request.form['password']
         hashed_password = hashlib.sha256(password.encode()).hexdigest()
-        conn = psycopg.connect(**DB_CONFIG)
+        conn = psycopg.connect(os.getenv('DATABASE_URL'))
         cursor = conn.cursor()
         cursor.execute('SELECT id, is_admin FROM users WHERE username = %s AND password = %s', (username, hashed_password))
         user = cursor.fetchone()
@@ -395,7 +383,7 @@ def login():
 
 @app.route('/register_admin', methods=['GET', 'POST'])
 def register_admin():
-    conn = psycopg.connect(**DB_CONFIG)
+    conn = psycopg.connect(os.getenv('DATABASE_URL'))
     cursor = conn.cursor()
     cursor.execute('SELECT COUNT(*) FROM users WHERE is_admin = TRUE')
     admin_count = cursor.fetchone()[0]
@@ -410,7 +398,7 @@ def register_admin():
         password = request.form['password']
         hashed_password = hashlib.sha256(password.encode()).hexdigest()
         try:
-            conn = psycopg.connect(**DB_CONFIG)
+            conn = psycopg.connect(os.getenv('DATABASE_URL'))
             cursor = conn.cursor()
             cursor.execute('INSERT INTO users (username, password, puk_balance, is_admin) VALUES (%s, %s, %s, %s) RETURNING id',
                            (username, hashed_password, 0.0, True))
@@ -430,7 +418,7 @@ def register_admin():
 @app.route('/admin_dashboard')
 @admin_required
 def admin_dashboard():
-    conn = psycopg.connect(**DB_CONFIG)
+    conn = psycopg.connect(os.getenv('DATABASE_URL'))
     cursor = conn.cursor()
     cursor.execute('''
         SELECT p.id, p.title, p.content, p.timestamp, u.username 
@@ -470,7 +458,7 @@ def logout():
 @app.route('/board/delete_post/<int:post_id>', methods=['POST'])
 @admin_required
 def delete_post(post_id):
-    conn = psycopg.connect(**DB_CONFIG)
+    conn = psycopg.connect(os.getenv('DATABASE_URL'))
     cursor = conn.cursor()
     cursor.execute('SELECT id FROM posts WHERE id = %s', (post_id,))
     if not cursor.fetchone():
@@ -487,7 +475,7 @@ def delete_post(post_id):
 @app.route('/board/delete_comment/<int:comment_id>', methods=['POST'])
 @admin_required
 def delete_comment(comment_id):
-    conn = psycopg.connect(**DB_CONFIG)
+    conn = psycopg.connect(os.getenv('DATABASE_URL'))
     cursor = conn.cursor()
     cursor.execute('SELECT id, post_id FROM comments WHERE id = %s', (comment_id,))
     comment = cursor.fetchone()
@@ -509,7 +497,7 @@ def delete_comment(comment_id):
 def blockchain_info():
     blockchain = get_blockchain()
     blockchain.load_blocks_from_db()
-    conn = psycopg.connect(**DB_CONFIG)
+    conn = psycopg.connect(os.getenv('DATABASE_URL'))
     cursor = conn.cursor()
     page = request.args.get('page', 1, type=int)
     per_page = 10
@@ -554,7 +542,7 @@ def sanitize_text(text):
 @app.route('/board', methods=['GET'])
 @login_required
 def board():
-    conn = psycopg.connect(**DB_CONFIG)
+    conn = psycopg.connect(os.getenv('DATABASE_URL'))
     cursor = conn.cursor()
 
     # รับค่าพารามิเตอร์สำหรับการแบ่งหน้า
@@ -602,7 +590,7 @@ def new_post():
         sanitized_title = sanitize_text(title)
         sanitized_content = sanitize_text(content)
         
-        conn = psycopg.connect(**DB_CONFIG)
+        conn = psycopg.connect(os.getenv('DATABASE_URL'))
         cursor = conn.cursor()
         cursor.execute(
             'INSERT INTO posts (title, content, user_id) VALUES (%s, %s, %s)',
@@ -618,7 +606,7 @@ def new_post():
 @app.route('/board/<int:post_id>', methods=['GET', 'POST'])
 @login_required
 def post_details(post_id):
-    conn = psycopg.connect(**DB_CONFIG)
+    conn = psycopg.connect(os.getenv('DATABASE_URL'))
     cursor = conn.cursor()
     
     # ดึงข้อมูลกระทู้
@@ -678,7 +666,7 @@ def post_details(post_id):
 def block_details(block_index):
     blockchain = get_blockchain()
     blockchain.load_blocks_from_db()
-    conn = psycopg.connect(**DB_CONFIG)
+    conn = psycopg.connect(os.getenv('DATABASE_URL'))
     cursor = conn.cursor()
     cursor.execute('SELECT b."index", b.message, b.hash, b.previous_hash, b.timestamp, u.username, b.owner_id FROM blocks b LEFT JOIN users u ON b.owner_id = u.id WHERE b."index" = %s', (block_index,))
     block_data = cursor.fetchone()
@@ -708,7 +696,7 @@ def block_details(block_index):
 @login_required
 def edit_block(block_index):
     blockchain = get_blockchain()
-    conn = psycopg.connect(**DB_CONFIG)
+    conn = psycopg.connect(os.getenv('DATABASE_URL'))
     cursor = conn.cursor()
     cursor.execute('SELECT message, owner_id FROM blocks WHERE "index" = %s', (block_index,))
     block = cursor.fetchone()
@@ -748,7 +736,7 @@ def wallet_details():
     private_key = None
     balance = 0.0
     if 'user_id' in session:
-        conn = psycopg.connect(**DB_CONFIG)
+        conn = psycopg.connect(os.getenv('DATABASE_URL'))
         cursor = conn.cursor()
         cursor.execute('SELECT wallet_address, private_key FROM wallets WHERE user_id = %s', (session['user_id'],))
         wallet = cursor.fetchone()
@@ -775,7 +763,7 @@ def time_capsule():
 def transactions():
     blockchain = get_blockchain()
     transactions = blockchain.view_transactions()
-    conn = psycopg.connect(**DB_CONFIG)
+    conn = psycopg.connect(os.getenv('DATABASE_URL'))
     cursor = conn.cursor()
     cursor.execute('SELECT COUNT(*) FROM users')
     total_users = cursor.fetchone()[0]
@@ -826,7 +814,7 @@ def trade():
             if cost_usdt > puk_balance * puk_price:
                 flash('Insufficient PUK balance')
             else:
-                conn = psycopg.connect(**DB_CONFIG)
+                conn = psycopg.connect(os.getenv('DATABASE_URL'))
                 cursor = conn.cursor()
                 cursor.execute('UPDATE users SET puk_balance = puk_balance - %s WHERE id = %s', (amount_puk, session['user_id']))
                 cursor.execute('INSERT INTO transactions (from_address, to_address, amount) VALUES (%s, %s, %s)', (blockchain.wallet_address, "system", amount_puk))
@@ -838,7 +826,7 @@ def trade():
             if amount_puk > puk_balance:
                 flash('Insufficient PUK balance')
             else:
-                conn = psycopg.connect(**DB_CONFIG)
+                conn = psycopg.connect(os.getenv('DATABASE_URL'))
                 cursor = conn.cursor()
                 cursor.execute('UPDATE users SET puk_balance = puk_balance + %s WHERE id = %s', (amount_puk, session['user_id']))
                 cursor.execute('INSERT INTO transactions (from_address, to_address, amount) VALUES (%s, %s, %s)', ("system", blockchain.wallet_address, amount_puk))
@@ -871,7 +859,7 @@ def trade_puk():
             if cost_usdt > puk_balance:
                 flash('Insufficient PUK balance to buy.')
             else:
-                conn = psycopg.connect(**DB_CONFIG)
+                conn = psycopg.connect(os.getenv('DATABASE_URL'))
                 cursor = conn.cursor()
                 cursor.execute('UPDATE users SET puk_balance = puk_balance - %s WHERE id = %s', 
                                (cost_usdt, session['user_id']))
@@ -892,7 +880,7 @@ def trade_puk():
                 if proceeds_usdt > 1e18:
                     flash('Sell amount exceeds maximum allowed value.')
                 else:
-                    conn = psycopg.connect(**DB_CONFIG)
+                    conn = psycopg.connect(os.getenv('DATABASE_URL'))
                     cursor = conn.cursor()
                     cursor.execute('UPDATE users SET puk_balance = puk_balance + %s WHERE id = %s', 
                                   (proceeds_usdt, session['user_id']))
