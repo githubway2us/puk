@@ -21,7 +21,7 @@ DB_CONFIG = {
     'user': 'chainlogger_user',
     'password': os.getenv('DB_PASSWORD', 'Chainlogger@2025'),
     'host': 'localhost',
-    'port': '5432'
+    'port': '5433'
 }
 
 
