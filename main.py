@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
-import psycopg
+import psycopg2
 import hashlib
 import secrets
 from datetime import datetime
@@ -15,15 +15,14 @@ app.secret_key = secrets.token_hex(16)
 # โหลด environment variables
 load_dotenv()
 
-conn = psycopg.connect(
-    host=os.getenv("DB_HOST", "localhost"),
-    dbname=os.getenv("DB_NAME", "chainlogger_db"),
-    user=os.getenv("DB_USER", "chainlogger_user"),
-    password=os.getenv("DB_PASSWORD"),
-    port=os.getenv("DB_PORT", "5432"),
-    sslmode="require"   # สำหรับ Render PostgreSQL
-)
-
+# PostgreSQL configuration
+DB_CONFIG = {
+    'dbname': 'chainlogger_db',
+    'user': 'chainlogger_user',
+    'password': os.getenv('DB_PASSWORD', 'Chainlogger@2025'),
+    'host': 'localhost',
+    'port': '5432'
+}
 
 
 # Binance API URL
@@ -42,7 +41,7 @@ class Blockchain:
             self.create_genesis_block()
 
     def create_table(self):
-        conn = psycopg.connect(os.getenv("DATABASE_URL"))
+        conn = psycopg2.connect(**DB_CONFIG)
         cursor = conn.cursor()
         
         cursor.execute('''
