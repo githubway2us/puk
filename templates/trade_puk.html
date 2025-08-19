@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Trade PUK{% endblock %}
+{% block content %}
+<div class="trade-container">
+    <h2>Trade PUK/USDT</h2>
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for message in messages %}
+                    <p class="flash-message">{{ message }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+    <div class="stats">
+        <p>PUK Balance: {{ puk_balance|round(2) }} USDT</p>
+        <p>PUK Price: {{ puk_price|round(2) }} USDT</p>
+    </div>
+    <div class="trade-form">
+        <form method="POST">
+            <input type="hidden" name="action" id="tradeAction">
+            <div class="percentage-buttons">
+                <h3>Buy PUK</h3>
+                {% for percent in [10, 20, 30, 50, 60, 70, 80, 90, 100] %}
+                    <button type="submit" onclick="document.getElementById('tradeAction').value='buy'; document.getElementById('tradePercentage').value={{ percent }}" name="percentage" value="{{ percent }}">{{ percent }}%</button>
+                {% endfor %}
+            </div>
+            <div class="percentage-buttons">
+                <h3>Sell PUK</h3>
+                {% for percent in [10, 20, 30, 50, 60, 70, 80, 90, 100] %}
+                    <button type="submit" onclick="document.getElementById('tradeAction').value='sell'; document.getElementById('tradePercentage').value={{ percent }}" name="percentage" value="{{ percent }}">{{ percent }}%</button>
+                {% endfor %}
+            </div>
+            <input type="hidden" id="tradePercentage" name="percentage">
+        </form>
+    </div>
+</div>
+{% endblock %}

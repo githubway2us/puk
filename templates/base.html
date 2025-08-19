@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="ChainLogger - The Crypto Samurai's Blockchain Codex">
+    <title>ChainLogger - {% block title %}Crypto Samurai{% endblock %}</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Cinzel:wght@700&display=swap" rel="stylesheet">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="{{ url_for('blockchain_info') }}">
+                    <img src="{{ url_for('static', filename='images/puk.png') }}" alt="ChainLogger Logo" width="40" class="me-2"> @PUK คัมภีร์สายกระบี่คริปโต
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    {% if 'user_id' in session %}
+                        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                            <!-- หมวด Crypto Scrolls -->
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="scrollsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-scroll me-1"></i> Crypto Scrolls
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="scrollsDropdown">
+                                    <li><a class="dropdown-item" href="{{ url_for('blockchain_info') }}">Blockchain Codex</a></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('transactions') }}">Transaction Ledger</a></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('wallet_details') }}">Crypto Vault</a></li>
+                                </ul>
+                            </li>
+                        <!-- ในส่วน Samurai Arsenal dropdown -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="arsenalDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-sword me-1"></i> Samurai Arsenal
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="arsenalDropdown">
+                                <li><a class="dropdown-item" href="{{ url_for('time_capsule') }}">Time Capsule</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('transfer') }}">Crypto Transfer</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('details') }}">Vault Details</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('board') }}">Dojo Board</a></li>
+                                {% if is_admin() %}
+                                    <li><a class="dropdown-item" href="{{ url_for('admin_dashboard') }}">Admin Dashboard</a></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('register_admin') }}">Register Admin</a></li>
+                                {% endif %}
+                                {% if not is_admin() and session.get('user_id') %}
+                                    <li><a class="dropdown-item" href="{{ url_for('register_admin') }}">Register Admin</a></li>
+                                {% endif %}
+                            </ul>
+                        </li>
+                        </ul>
+                        <ul class="navbar-nav ms-auto">
+                            <li class="nav-item">
+                                <span class="nav-link welcome-message">Welcome, {{ get_username() }}! <i class="fas fa-user-ninja"></i></span>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+                            </li>
+                        </ul>
+                    {% else %}
+                        <ul class="navbar-nav ms-auto">
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('login') }}">Enter the Dojo</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('register') }}">Join the Clan</a></li>
+                            </li>
+                        </ul>
+                    {% endif %}
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mt-4">
+        <div class="content">
+            <!-- PUK's Quote Widget -->
+            <div class="puk-quote text-center mb-4">
+                <p class="quote-text">"Slash the FUD with Crypto Blade! - PUK @ คัมภีร์สายกระบี่คริปโต"</p>
+            </div>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <footer class="bg-dark text-white text-center py-3 mt-4">
+        <p>© 2025 ChainLogger - Forged in the Blockchain, Sharpened by Crypto</p>
+        <p>PUK @ คัมภีร์สายกระบี่คริปโต - Master of the Crypto Blade</p>
+    </footer>
+
+    <!-- Bootstrap JS and Popper.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js" integrity="sha384-fbbOQedDUMZZ5KreZpsbe1LCZPVmfTnH7ois6mU1QK+m14rQ1l2bGBq41eYeM/fS" crossorigin="anonymous"></script>
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='script.js') }}" defer></script>
+</body>
+</html>

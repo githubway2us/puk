@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+    <h2>Edit Block #{{ block_index }}</h2>
+    <form method="POST">
+        <div class="form-group">
+            <label for="new_message">Current Message: {{ current_message }}</label>
+            <textarea class="form-control" id="new_message" name="new_message" rows="3" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Update Message</button>
+        <a href="{{ url_for('block_details', block_index=block_index) }}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

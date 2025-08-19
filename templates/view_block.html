@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}View Block{% endblock %}
+{% block content %}
+    <div class="block-container">
+        <h2>Block Details</h2>
+
+        <div class="block-info">
+            <p><strong>Block ID:</strong> {{ block.index }}</p>
+            <p><strong>Message:</strong> {{ block.message }}</p>
+            <p><strong>Owner:</strong> {{ block.owner_username }}</p>
+            <p><strong>Price:</strong> {{ block.price }} PUK</p>
+            <p><strong>History of Ownership:</strong>
+                {% for owner in block.ownership_history %}
+                    <br> - Owned by: {{ owner.username }} on {{ owner.timestamp }}
+                {% endfor %}
+            </p>
+            <p><strong>Current Owner:</strong> {{ block.current_owner }}</p>
+        </div>
+
+        {% if block.owner_id != session['user_id'] %}
+        <!-- If the user is not the current owner -->
+        <div class="purchase-offer">
+            <h3>Make an Offer to Buy the Block</h3>
+            <form method="POST" action="{{ url_for('make_offer', block_index=block.index) }}">
+                <label for="offer_price">Your Offer (in PUK):</label>
+                <input type="number" id="offer_price" name="offer_price" required min="0" step="any" placeholder="Offer Price">
+                <button type="submit">Submit Offer</button>
+            </form>
+        </div>
+        {% else %}
+        <!-- If the user is the current owner, display option to sell -->
+        <div class="sell-block">
+            <h3>Sell This Block</h3>
+            <form method="POST" action="{{ url_for('sell_block', block_index=block.index) }}">
+                <label for="sale_price">Set Sale Price (in PUK):</label>
+                <input type="number" id="sale_price" name="sale_price" required min="0" step="any" placeholder="Sale Price">
+                <button type="submit">Set Sale Price</button>
+            </form>
+        </div>
+        {% endif %}
+    </div>
+{% endblock %}

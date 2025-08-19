@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+    <h2>Create Time Capsule</h2>
+    <form method="POST" id="message-form">
+        <div class="form-group">
+            <label for="message">Message:</label>
+            <div class="editor-toolbar">
+                <button type="button" onclick="formatText('bold')" title="Bold"><b>B</b></button>
+                <button type="button" onclick="formatText('italic')" title="Italic"><i>I</i></button>
+                <button type="button" onclick="formatText('underline')" title="Underline"><u>U</u></button>
+                <select onchange="formatText('forecolor', this.value)" title="Text Color">
+                    <option value="">Color</option>
+                    <option value="black">Black</option>
+                    <option value="red">Red</option>
+                    <option value="blue">Blue</option>
+                    <option value="green">Green</option>
+                </select>
+                <select onchange="formatText('heading', this.value)" title="Heading">
+                    <option value="">Normal</option>
+                    <option value="h1">Heading 1</option>
+                    <option value="h2">Heading 2</option>
+                    <option value="h3">Heading 3</option>
+                </select>
+                <button type="button" onclick="formatText('justifyLeft')" title="Align Left">←</button>
+                <button type="button" onclick="formatText('justifyCenter')" title="Align Center">↔</button>
+                <button type="button" onclick="formatText('justifyRight')" title="Align Right">→</button>
+            </div>
+
+            <style>
+              .editor {
+                min-height: 200px;
+                background-color: white;
+                border: 1px solid #ccc;
+                padding: 10px;
+                border-radius: 4px;
+                overflow-y: auto;
+              }
+            </style>
+
+            <div contenteditable="true" class="editor" id="editor" oninput="updateTextarea()"></div>
+            <textarea class="form-control" id="message" name="message" style="display: none;" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Create Block</button>
+        <a href="{{ url_for('blockchain_info') }}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+
+<script>
+    function formatText(command, value = null) {
+        document.execCommand(command, false, value);
+        document.getElementById('editor').focus();
+        updateTextarea();
+    }
+
+    function updateTextarea() {
+        const editor = document.getElementById('editor');
+        const textarea = document.getElementById('message');
+        textarea.value = editor.innerHTML;
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}Crypto Samurai Vault Details{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h1 class="text-center mb-4">PUK @ Time capsule</h1>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <!-- Project Overview -->
+    <div class="card bg-dark text-light border-neon mb-4">
+        <div class="card-body">
+            <h2 class="card-title">About the Project</h2>
+            <p class="card-text">
+                <strong>PUK @ Time capsule</strong> is a blockchain-based application designed for secure and transparent message logging, styled with a crypto warrior samurai theme. It combines blockchain technology, a community discussion board, and a token-based economy to create an immersive experience for crypto enthusiasts.
+            </p>
+            <p class="card-text">
+                <strong>PUK @ คัมภีร์สายกระบี่คริปโต</strong> เป็นแอปพลิเคชันที่ใช้เทคโนโลยีบล็อกเชนเพื่อบันทึกข้อความอย่างปลอดภัยและโปร่งใส ออกแบบในสไตล์นักรบซามูไรแห่งโลกคริปโต โดยผสานเทคโนโลยีบล็อกเชน กระดานสนทนาชุมชน และระบบเศรษฐกิจที่ใช้โทเค็น PUK เพื่อมอบประสบการณ์ที่ดื่มด่ำสำหรับผู้ที่ชื่นชอบคริปโต
+            </p>
+        </div>
+    </div>
+
+    <!-- Key Features -->
+    <h2 class="mt-4">Key Features / คุณสมบัติหลัก</h2>
+    <div class="row">
+        <div class="col-md-6">
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item bg-dark text-light border-neon">
+                    <strong>Blockchain Message Logging</strong>: Store messages securely in the "Time Capsule" with immutable blockchain records.<br>
+                    <strong>บันทึกข้อความบนบล็อกเชน</strong>: ฝากข้อความใน "Time Capsule" อย่างปลอดภัยด้วยบันทึกบล็อกเชนที่ไม่สามารถเปลี่ยนแปลงได้
+                </li>
+                <li class="list-group-item bg-dark text-light border-neon">
+                    <strong>PUK Token System</strong>: Earn PUK tokens by creating blocks and use them for trading or transfers.<br>
+                    <strong>ระบบโทเค็น PUK</strong>: รับโทเค็น PUK ผ่านการสร้างบล็อกและใช้ในการซื้อขายหรือโอน
+                </li>
+                <li class="list-group-item bg-dark text-light border-neon">
+                    <strong>Dojo Board</strong>: A community discussion board with XSS protection for posts and comments.<br>
+                    <strong>กระดาน Dojo</strong>: กระดานสนทนาชุมชนที่มีการป้องกัน XSS สำหรับกระทู้และความคิดเห็น
+                </li>
+            </ul>
+        </div>
+        <div class="col-md-6">
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item bg-dark text-light border-neon">
+                    <strong>Admin Dashboard</strong>: Admins can manage posts, comments, and register new admins securely.<br>
+                    <strong>แดชบอร์ด Admin</strong>: ผู้ดูแลระบบสามารถจัดการกระทู้ ความคิดเห็น และลงทะเบียน Admin ใหม่ได้อย่างปลอดภัย
+                </li>
+                <li class="list-group-item bg-dark text-light border-neon">
+                    <strong>Wallet Management</strong>: View balances and perform transactions with a user-specific crypto wallet.<br>
+                    <strong>การจัดการกระเป๋าเงิน</strong>: ดูยอดคงเหลือและทำธุรกรรมด้วยกระเป๋าเงินคริปโตเฉพาะผู้ใช้
+                </li>
+                <li class="list-group-item bg-dark text-light border-neon">
+                    <strong>PUK Trading</strong>: Buy or sell PUK tokens with prices linked to Binance API.<br>
+                    <strong>การซื้อขาย PUK</strong>: ซื้อหรือขายโทเค็น PUK โดยใช้ราคาที่เชื่อมโยงกับ Binance API
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Technical Details -->
+    <h2 class="mt-4">Technical Details / รายละเอียดทางเทคนิค</h2>
+    <div class="card bg-dark text-light border-neon">
+        <div class="card-body">
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item bg-dark text-light border-neon">
+                    <strong>Backend</strong>: Flask (Python) with PostgreSQL for secure data storage.<br>
+                    <strong>Backend</strong>: Flask (Python) พร้อม PostgreSQL สำหรับจัดเก็บข้อมูลอย่างปลอดภัย
+                </li>
+                <li class="list-group-item bg-dark text-light border-neon">
+                    <strong>Frontend</strong>: Bootstrap with neon-themed CSS and JavaScript animations (sword-slash effects, toast notifications).<br>
+                    <strong>Frontend</strong>: Bootstrap พร้อม CSS ธีมนีออนและอนิเมชัน JavaScript (เอฟเฟกต์ดาบฟัน, การแจ้งเตือน toast)
+                </li>
+                <li class="list-group-item bg-dark text-light border-neon">
+                    <strong>Security</strong>: Environment variables (.env) for sensitive data, input sanitization with Bleach to prevent XSS.<br>
+                    <strong>ความปลอดภัย</strong>: ตัวแปรสภาพแวดล้อม (.env) สำหรับข้อมูลที่ละเอียดอ่อน, การ sanitize อินพุตด้วย Bleach เพื่อป้องกัน XSS
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

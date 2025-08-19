@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Post Details{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h1>{{ post.title }}</h1>
+    <p>{{ post.content | safe }}</p>
+    <p><small>Posted by {{ post.username }} on {{ post.timestamp }}</small></p>
+    <h3>Comments</h3>
+    {% for comment in comments %}
+        <div class="card mb-2" style="background-color: #0A2647; border: 1px solid #FF4500;">
+            <div class="card-body">
+                <p>{{ comment.content | safe }}</p>
+                <p><small>Posted by {{ comment.username }} on {{ comment.timestamp }}</small></p>
+                {% if is_admin() %}
+                    <form action="{{ url_for('delete_comment', comment_id=comment.id) }}" method="POST" style="display: inline;">
+                        <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this comment?')">Delete</button>
+                    </form>
+                {% endif %}
+            </div>
+        </div>
+    {% endfor %}
+    <form method="POST" class="mt-4">
+        <div class="mb-3">
+            <label for="content" class="form-label">Add Comment</label>
+            <textarea class="form-control" id="content" name="content" rows="4" style="background-color: #1C2526; color: #E0E0E0; border: 2px solid #FF4500;"></textarea>
+        </div>
+        <button type="submit" class="btn btn-neon">Submit Comment</button>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+    <h2>Block #{{ block.index }}</h2>
+    <p><strong>Message:</strong> {{ block.message }}</p>
+    <p><strong>Hash:</strong> {{ block.hash }}</p>
+    <p><strong>Timestamp:</strong> {{ block.timestamp }}</p>
+    <p><strong>Owner:</strong> {{ block.owner }}</p>
+    
+
+    
+    <h3>Transactions</h3>
+    {% if block.transactions %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>From</th>
+                    <th>To</th>
+                    <th>Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for tx in block.transactions %}
+                <tr>
+                    <td>{{ tx.from_address }}</td>
+                    <td>{{ tx.to_address }}</td>
+                    <td>{{ tx.amount }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No transactions in this block.</p>
+    {% endif %}
+    
+    <h3>Ownership History</h3>
+    {% if ownership_history %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Previous Owner</th>
+                    <th>New Owner</th>
+                    <th>Timestamp</th>
+                    <th>Price</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for history in ownership_history %}
+                <tr>
+                    <td>{{ history.previous_owner }}</td>
+                    <td>{{ history.new_owner }}</td>
+                    <td>{{ history.timestamp }}</td>
+                    <td>{{ history.price }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No ownership history available.</p>
+    {% endif %}
+    
+    <a href="{{ url_for('blockchain_info') }}" class="btn btn-secondary">Back to Blockchain</a>
+</div>
+{% endblock %}

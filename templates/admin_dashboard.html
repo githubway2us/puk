@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}Crypto Samurai Admin Dashboard{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h1 class="text-center mb-4">Crypto Samurai Admin Dojo</h1>
+
+    <!-- สรุปข้อมูล -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card bg-dark text-light border-neon">
+                <div class="card-body">
+                    <h5 class="card-title">Total Users</h5>
+                    <p class="card-text">{{ total_users }} Samurai</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card bg-dark text-light border-neon">
+                <div class="card-body">
+                    <h5 class="card-title">Total Transactions</h5>
+                    <p class="card-text">{{ total_transactions }} PUK Transfers</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- กระทู้ -->
+    <h2 class="mt-4">Dojo Posts</h2>
+    <table class="table table-dark table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Posted By</th>
+                <th>Timestamp</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for post in posts %}
+            <tr>
+                <td>{{ post.id }}</td>
+                <td>{{ post.title }}</td>
+                <td>{{ post.username }}</td>
+                <td>{{ post.timestamp }}</td>
+                <td>
+                    <form action="{{ url_for('delete_post', post_id=post.id) }}" method="POST" style="display:inline;">
+                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- ความคิดเห็น -->
+    <h2 class="mt-4">Dojo Comments</h2>
+    <table class="table table-dark table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Post Title</th>
+                <th>Comment By</th>
+                <th>Content</th>
+                <th>Timestamp</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for comment in comments %}
+            <tr>
+                <td>{{ comment.id }}</td>
+                <td><a href="{{ url_for('post_details', post_id=comment.post_id) }}">{{ comment.post_title }}</a></td>
+                <td>{{ comment.username }}</td>
+                <td>{{ comment.content }}</td>
+                <td>{{ comment.timestamp }}</td>
+                <td>
+                    <form action="{{ url_for('delete_comment', comment_id=comment.id) }}" method="POST" style="display:inline;">
+                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

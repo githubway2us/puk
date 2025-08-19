@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}Transaction History{% endblock %}
+{% block content %}
+<div class="transactions-container">
+    <h2 class="page-title">Transaction History</h2>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Stats Section -->
+    <section class="stats-section">
+        <h3 class="section-title">Statistics</h3>
+        <div class="stats">
+            <div class="stat-item">
+                <h4>Total Users</h4>
+                <p>{{ total_users }}</p>
+            </div>
+            <div class="stat-item">
+                <h4>Total Coins Generated</h4>
+                <p>{{ total_coins }} PUK</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Refresh Button -->
+    <section class="refresh-section">
+        <button onclick="location.reload()" class="refresh-btn">
+            <i class="fas fa-sync-alt"></i> Refresh
+        </button>
+    </section>
+
+    <!-- Transaction List -->
+    <section class="transaction-section">
+        <h3 class="section-title">Transactions</h3>
+        {% if transactions %}
+            <div class="transaction-list">
+                {% for tx in transactions %}
+                    <div class="transaction-item">
+                        <div class="transaction-header">
+                            <h4>Transaction ID: {{ tx.id }}</h4>
+                            <p class="timestamp">{{ tx.timestamp }}</p>
+                        </div>
+                        <div class="transaction-details">
+                            <p><strong>From:</strong> {{ tx.from }}</p>
+                            <p><strong>To:</strong> {{ tx.to }}</p>
+                            <p><strong>Amount:</strong> {{ tx.amount }} PUK</p>
+                            <p><strong>Block:</strong> 
+                                {% if tx.block_index is not none %}
+                                    <a href="{{ url_for('block_details', block_index=tx.block_index) }}" class="block-link">Block #{{ tx.block_index }}</a>
+                                {% else %}
+                                    Not in a block yet
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="alert alert-info" role="alert">
+                No transactions available.
+            </div>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}

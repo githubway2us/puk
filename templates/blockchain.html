@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+    <h2>Blockchain</h2>
+    <p>
+        <a href="{{ url_for('time_capsule') }}" class="btn btn-primary">Create New Block</a>
+    </p>
+
+    <!-- แสดงจำนวนบล็อกทั้งหมด -->
+    <p class="text-muted">Total Blocks: {{ total_blocks }}</p>
+
+    <!-- ตัวเลือกการจัดเรียง -->
+    <div class="sort-controls mb-3">
+        <form method="GET" action="{{ url_for('blockchain_info') }}">
+            <div class="row g-2 align-items-center">
+                <div class="col-auto">
+                    <label for="sort_by" class="form-label">Sort by:</label>
+                </div>
+                <div class="col-auto">
+                    <select name="sort_by" id="sort_by" class="form-select" onchange="this.form.submit()">
+                        <option value="index" {% if sort_by == 'index' %}selected{% endif %}>Index</option>
+                        <option value="owner" {% if sort_by == 'owner' %}selected{% endif %}>Owner</option>
+                    </select>
+                </div>
+                <div class="col-auto">
+                    <label for="sort_order" class="form-label">Order:</label>
+                </div>
+                <div class="col-auto">
+                    <select name="sort_order" id="sort_order" class="form-select" onchange="this.form.submit()">
+                        <option value="asc" {% if sort_order == 'asc' %}selected{% endif %}>Ascending</option>
+                        <option value="desc" {% if sort_order == 'desc' %}selected{% endif %}>Descending</option>
+                    </select>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- ตารางข้อมูลบล็อก -->
+    {% if blocks %}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Index</th>
+                <th>Message</th>
+                <th>Hash</th>
+                <th>Owner</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for block in blocks %}
+            <tr>
+                <td>{{ block.index }}</td>
+                <td>{{ block.message | safe }}</td>
+                <td>{{ block.hash }}</td>
+                <td>{{ block.owner }}</td>
+                <td>
+                    <a href="{{ url_for('block_details', block_index=block.index) }}" class="btn btn-info btn-sm">Details</a>
+                    {% if block.owner == get_username() %}
+                        <a href="{{ url_for('edit_block', block_index=block.index) }}" class="btn btn-warning btn-sm">Edit</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="alert alert-info" role="alert">
+        No blocks available in the blockchain.
+    </div>
+    {% endif %}
+
+    <!-- Pagination -->
+    {% if total_pages > 1 %}
+    <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+            <!-- ปุ่ม Previous -->
+            <li class="page-item {% if page == 1 %}disabled{% endif %}">
+                <a class="page-link" href="{{ url_for('blockchain_info', page=page-1, sort_by=sort_by, sort_order=sort_order) }}" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+
+            <!-- หน้า -->
+            {% for p in range(1, total_pages + 1) %}
+            <li class="page-item {% if p == page %}active{% endif %}">
+                <a class="page-link" href="{{ url_for('blockchain_info', page=p, sort_by=sort_by, sort_order=sort_order) }}">{{ p }}</a>
+            </li>
+            {% endfor %}
+
+            <!-- ปุ่ม Next -->
+            <li class="page-item {% if page == total_pages %}disabled{% endif %}">
+                <a class="page-link" href="{{ url_for('blockchain_info', page=page+1, sort_by=sort_by, sort_order=sort_order) }}" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}

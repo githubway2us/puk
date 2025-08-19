@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Buy Block #{{ block_index }}{% endblock %}
+{% block content %}
+    <div class="buy-block-container">
+        <h2>Buy Block #{{ block_index }}</h2>
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for message in messages %}
+                        <p class="flash-message">{{ message }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        <p><strong>Current Message:</strong> {{ message }}</p>
+        <p><strong>Current Owner:</strong> {{ owner }}</p>
+        <p><strong>Your PUK Balance:</strong> {{ puk_balance|round(2) }} PUK</p>
+        <form method="POST">
+            <label for="offer_price">Offer Price (PUK):</label>
+            <input type="number" step="0.01" id="offer_price" name="offer_price" required>
+            <button type="submit" class="buy-btn">Buy Block</button>
+        </form>
+        <a href="{{ url_for('block_details', block_index=block_index) }}" class="back-btn">Back to Block Details</a>
+    </div>
+{% endblock %}

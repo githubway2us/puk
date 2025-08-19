@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Transactions{% endblock %}
+{% block content %}
+    <div class="transactions-container">
+        <h2>Transaction History</h2>
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for message in messages %}
+                        <p class="flash-message">{{ message }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        <div class="stats">
+            <div class="stat-item">
+                <h3>Total Users</h3>
+                <p>{{ total_users }}</p>
+            </div>
+            <div class="stat-item">
+                <h3>Total Coins Generated</h3>
+                <p>{{ total_coins }} PUK</p>
+            </div>
+        </div>
+        <button onclick="location.reload()" class="refresh-btn">Refresh</button>
+        <div class="transaction-list">
+            {% for tx in transactions %}
+                <div class="transaction-item">
+                    <p><strong>ID:</strong> {{ tx.id }}</p>
+                    <p><strong>Time:</strong> {{ tx.timestamp }}</p>
+                    <p><strong>From:</strong> {{ tx.from }}</p>
+                    <p><strong>To:</strong> {{ tx.to }}</p>
+                    <p><strong>Amount:</strong> {{ tx.amount }} PUK</p>
+                    <p><strong>Block:</strong> 
+                        {% if tx.block_index is not none %}
+                            <a href="{{ url_for('block_details', block_index=tx.block_index) }}">Block #{{ tx.block_index }}</a>
+                        {% else %}
+                            Not in a block yet
+                        {% endif %}
+                    </p>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="pagination">
+            {% if page > 1 %}
+                <a href="{{ url_for('transaction_history', page=page-1) }}" class="prev">Previous</a>
+            {% endif %}
+            <span>Page {{ page }} of {{ total_pages }}</span>
+            {% if page < total_pages %}
+                <a href="{{ url_for('transaction_history', page=page+1) }}" class="next">Next</a>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
